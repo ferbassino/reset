@@ -68,7 +68,6 @@ const FormComponent = () => {
         navigate("/reset-password");
         setSuccess(true);
       }
-      console.log(data);
     } catch (error) {
       setBusy(false);
       if (error?.response?.data) {
@@ -83,12 +82,36 @@ const FormComponent = () => {
   if (success)
     return (
       <div>
+        <br />
+        <h1
+          style={{
+            fontSize: 40,
+            textAlign: "center",
+            color: "rgba(15,12,46,1)",
+          }}
+        >
+          kinApp
+        </h1>
+        <br />
+
         <h1 className="text-center">Password reset successfully</h1>
       </div>
     );
   if (invalidUser)
     return (
       <div>
+        <br />
+        <h1
+          style={{
+            fontSize: 40,
+            textAlign: "center",
+            color: "rgba(15,12,46,1)",
+          }}
+        >
+          kinApp
+        </h1>
+        <br />
+
         <h1 className="text-center">{invalidUser}</h1>
       </div>
     );
@@ -96,6 +119,18 @@ const FormComponent = () => {
   if (busy)
     return (
       <div>
+        <br />
+        <h1
+          style={{
+            fontSize: 40,
+            textAlign: "center",
+            color: "rgba(15,12,46,1)",
+          }}
+        >
+          kinApp
+        </h1>
+        <br />
+
         <h1 className="text-center">
           wait a moment, we are verifying reset token...
         </h1>
@@ -104,6 +139,17 @@ const FormComponent = () => {
 
   return (
     <div style={{ width: 400 }} className=" text-center m-auto">
+      <br />
+      <h1
+        style={{
+          fontSize: 40,
+          textAlign: "center",
+          color: "rgba(15,12,46,1)",
+        }}
+      >
+        kinApp
+      </h1>
+      <br />
       <h3>Reset password</h3>
       {error && <h3 style={{ color: "#f54272" }}>{error}</h3>}
       <div className="m-2">
