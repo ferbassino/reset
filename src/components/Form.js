@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
-import { useLocation } from "react-router";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import queryString from "query-string";
 import axios from "axios";
+import "./FormComponent.css";
 
 const baseUrl = "https://kinapp-api.vercel.app/";
 
@@ -20,6 +18,7 @@ const FormComponent = () => {
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
   const { token, id } = queryString.parse(location.search);
+
   const verifyToken = async () => {
     try {
       const { data } = await axios.get(
@@ -27,13 +26,10 @@ const FormComponent = () => {
       );
       if (!data.success) setInvalidUser(data.error);
       setBusy(false);
-
-      console.log(data);
     } catch (error) {
       if (error?.response?.data) {
         const { data } = error.response;
         if (!data.success) setInvalidUser(data.error);
-        return console.log(error.response.data);
       }
       console.log(error);
     }
@@ -47,20 +43,21 @@ const FormComponent = () => {
     const { name, value } = target;
     setNewPassword({ ...newPassword, [name]: value });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { password, confirmPassword } = newPassword;
     if (password.trim().length < 8 || password.trim().length > 20) {
-      return setError("password must be between 8 and 20 characters");
+      return setError("Password must be between 8 and 20 characters");
     }
     if (password !== confirmPassword) {
-      return setError("password does not match!!");
+      return setError("Passwords do not match!");
     }
     try {
       setBusy(true);
       const { data } = await axios.post(
         `${baseUrl}reset-password?token=${token}&id=${id}`,
-        { password }
+        { password, id }
       );
 
       setBusy(false);
@@ -73,7 +70,6 @@ const FormComponent = () => {
       if (error?.response?.data) {
         const { data } = error.response;
         if (!data.success) setError(data.error);
-        return console.log(error.response.data);
       }
       console.log(error);
     }
@@ -81,102 +77,58 @@ const FormComponent = () => {
 
   if (success)
     return (
-      <div>
-        <br />
-        <h1
-          style={{
-            fontSize: 40,
-            textAlign: "center",
-            color: "rgba(15,12,46,1)",
-          }}
-        >
-          kinApp
-        </h1>
-        <br />
-
-        <h1 className="text-center">Password reset successfully</h1>
+      <div className="success-message">
+        <h1 className="form-title">kinApp</h1>
+        <h2>Password reset successfully</h2>
       </div>
     );
+
   if (invalidUser)
     return (
-      <div>
-        <br />
-        <h1
-          style={{
-            fontSize: 40,
-            textAlign: "center",
-            color: "rgba(15,12,46,1)",
-          }}
-        >
-          kinApp
-        </h1>
-        <br />
-
-        <h1 className="text-center">{invalidUser}</h1>
+      <div className="invalid-message">
+        <h1 className="form-title">kinApp</h1>
+        <h2>{invalidUser}</h2>
       </div>
     );
 
   if (busy)
     return (
-      <div>
-        <br />
-        <h1
-          style={{
-            fontSize: 40,
-            textAlign: "center",
-            color: "rgba(15,12,46,1)",
-          }}
-        >
-          kinApp
-        </h1>
-        <br />
-
-        <h1 className="text-center">
-          wait a moment, we are verifying reset token...
-        </h1>
+      <div className="loading-message">
+        <h1 className="form-title">kinApp</h1>
+        <h2>Please wait, verifying reset token...</h2>
       </div>
     );
 
   return (
-    <div style={{ width: 400 }} className=" text-center m-auto">
-      <br />
-      <h1
-        style={{
-          fontSize: 40,
-          textAlign: "center",
-          color: "rgba(15,12,46,1)",
-        }}
-      >
-        kinApp
-      </h1>
-      <br />
-      <h3>Reset password</h3>
-      {error && <h3 style={{ color: "#f54272" }}>{error}</h3>}
-      <div className="m-2">
-        <Form.Control
-          placeholder="********"
+    <div className="form-component">
+      <h1 className="form-title">kinApp</h1>
+      <h3 className="form-heading">Reset Password</h3>
+
+      {error && <div className="form-error">{error}</div>}
+
+      <form onSubmit={handleSubmit}>
+        <input
+          className="form-input"
+          placeholder="New Password"
           type="password"
           name="password"
-          //   aria-describedby="passwordHelpBlock"
           onChange={handleChange}
-          //   value={password}
+          required
         />
-      </div>
-      <div className="m-2">
-        <Form.Control
-          placeholder="********"
+
+        <input
+          className="form-input"
+          placeholder="Confirm Password"
           type="password"
           name="confirmPassword"
-          aria-describedby="passwordHelpBlock"
           onChange={handleChange}
-          //   value={confirmPassword}
+          required
         />
-      </div>
-      <div className="m-2">
-        <Button variant="secondary" onClick={handleSubmit}>
-          Reset password
-        </Button>
-      </div>
+
+        <button type="submit" className="form-button">
+          Reset Password
+        </button>
+      </form>
     </div>
   );
 };
