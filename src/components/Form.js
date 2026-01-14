@@ -4,6 +4,9 @@ import queryString from "query-string";
 import axios from "axios";
 import "./FormComponent.css";
 
+// Importar el logo SVG
+import Logo from "../assets/favicon.svg";
+
 const baseUrl = "https://kinapp-api.vercel.app/";
 
 const FormComponent = () => {
@@ -42,17 +45,21 @@ const FormComponent = () => {
   const handleChange = ({ target }) => {
     const { name, value } = target;
     setNewPassword({ ...newPassword, [name]: value });
+    setError(""); // Limpiar errores al escribir
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { password, confirmPassword } = newPassword;
+
     if (password.trim().length < 8 || password.trim().length > 20) {
-      return setError("Password must be between 8 and 20 characters");
+      return setError("La contraseña debe tener entre 8 y 20 caracteres");
     }
+
     if (password !== confirmPassword) {
-      return setError("Passwords do not match!");
+      return setError("¡Las contraseñas no coinciden!");
     }
+
     try {
       setBusy(true);
       const { data } = await axios.post(
@@ -62,8 +69,11 @@ const FormComponent = () => {
 
       setBusy(false);
       if (data.success) {
-        navigate("/reset-password");
         setSuccess(true);
+        // Redirigir automáticamente después de 3 segundos
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000);
       }
     } catch (error) {
       setBusy(false);
@@ -78,57 +88,133 @@ const FormComponent = () => {
   if (success)
     return (
       <div className="success-message">
-        <h1 className="form-title">kinApp</h1>
-        <h2>Password reset successfully</h2>
+        <div className="logo-container">
+          <img src={Logo} alt="Baskin Logo" className="logo" />
+          <h1 className="form-title">Baskin</h1>
+        </div>
+        <div className="success-icon">✓</div>
+        <h2>¡Contraseña restablecida con éxito!</h2>
+        <p>Tu contraseña ha sido actualizada correctamente.</p>
+        <p className="redirect-message">
+          Serás redirigido a la página de inicio de sesión en 3 segundos...
+        </p>
+        <button
+          className="form-button secondary"
+          onClick={() => navigate("/login")}
+        >
+          Ir al inicio de sesión ahora
+        </button>
       </div>
     );
 
   if (invalidUser)
     return (
       <div className="invalid-message">
-        <h1 className="form-title">kinApp</h1>
+        <div className="logo-container">
+          <img src={Logo} alt="Baskin Logo" className="logo" />
+          <h1 className="form-title">Baskin</h1>
+        </div>
+        <div className="error-icon">✗</div>
         <h2>{invalidUser}</h2>
+        <p>El enlace de restablecimiento no es válido o ha expirado.</p>
+        <button
+          className="form-button secondary"
+          onClick={() => navigate("/forgot-password")}
+        >
+          Solicitar nuevo enlace
+        </button>
       </div>
     );
 
   if (busy)
     return (
       <div className="loading-message">
-        <h1 className="form-title">kinApp</h1>
-        <h2>Please wait, verifying reset token...</h2>
+        <div className="logo-container">
+          <img src={Logo} alt="Baskin Logo" className="logo" />
+          <h1 className="form-title">Baskin</h1>
+        </div>
+        <div className="spinner"></div>
+        <h2 className="loading-text">
+          Verificando enlace de restablecimiento...
+        </h2>
+        <p className="loading-subtext">Por favor, espera un momento.</p>
       </div>
     );
 
   return (
     <div className="form-component">
-      <h1 className="form-title">kinApp</h1>
-      <h3 className="form-heading">Reset Password</h3>
+      <div className="form-header">
+        <div className="logo-container">
+          <img src={Logo} alt="Baskin Logo" className="logo" />
+          <h1 className="form-title">Baskin</h1>
+        </div>
+        <p className="form-subtitle">Análisis Biomecánico Inteligente</p>
+      </div>
 
-      {error && <div className="form-error">{error}</div>}
+      <div className="form-card">
+        <h2 className="form-heading">Restablecer Contraseña</h2>
+        <p className="form-description">
+          Crea una nueva contraseña segura para tu cuenta
+        </p>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          className="form-input"
-          placeholder="New Password"
-          type="password"
-          name="password"
-          onChange={handleChange}
-          required
-        />
+        {error && (
+          <div className="form-error" role="alert">
+            <span className="error-icon-small">!</span>
+            {error}
+          </div>
+        )}
 
-        <input
-          className="form-input"
-          placeholder="Confirm Password"
-          type="password"
-          name="confirmPassword"
-          onChange={handleChange}
-          required
-        />
+        <form onSubmit={handleSubmit} className="password-form">
+          <div className="input-group">
+            <label htmlFor="password" className="input-label">
+              Nueva Contraseña
+            </label>
+            <input
+              id="password"
+              className="form-input"
+              placeholder="Ingresa tu nueva contraseña"
+              type="password"
+              name="password"
+              value={newPassword.password}
+              onChange={handleChange}
+              required
+            />
+            <p className="input-hint">Entre 8 y 20 caracteres</p>
+          </div>
 
-        <button type="submit" className="form-button">
-          Reset Password
-        </button>
-      </form>
+          <div className="input-group">
+            <label htmlFor="confirmPassword" className="input-label">
+              Confirmar Contraseña
+            </label>
+            <input
+              id="confirmPassword"
+              className="form-input"
+              placeholder="Confirma tu nueva contraseña"
+              type="password"
+              name="confirmPassword"
+              value={newPassword.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <button type="submit" className="form-button primary">
+            Restablecer Contraseña
+          </button>
+        </form>
+
+        <div className="form-footer">
+          <p>
+            ¿Recordaste tu contraseña?{" "}
+            <button className="text-link" onClick={() => navigate("/login")}>
+              Iniciar sesión
+            </button>
+          </p>
+          <p className="security-note">
+            🔒 Tus datos están protegidos con encriptación de nivel empresarial
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
