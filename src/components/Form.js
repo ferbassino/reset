@@ -7,7 +7,7 @@ import "./FormComponent.css";
 // Importar el logo SVG (ajusta la ruta según tu estructura de archivos)
 import Logo from "../assets/favicon.svg";
 
-const baseUrl = "https://Baskin-api.vercel.app/";
+const baseUrl = "https://kinapp-api.vercel.app/";
 
 const FormComponent = () => {
   const navigate = useNavigate();
