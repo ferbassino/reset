@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- Triángulo superior - azul -->
+  <polygon 
+    points="25,20 75,20 25,50" 
+    fill="#3b82f6" 
+    stroke="#1d4ed8" 
+    stroke-width="2" 
+    stroke-linejoin="round"
+  />
+  <!-- Triángulo inferior - azul oscuro -->
+  <polygon 
+    points="25,50 75,80 25,80" 
+    fill="#2563eb" 
+    stroke="#1d4ed8" 
+    stroke-width="2" 
+    stroke-linejoin="round"
+  />
+</svg>
