@@ -1,16 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import queryString from "query-string";
 import axios from "axios";
+import BrandLogo from "./BrandLogo/BrandLogo";
 import "./FormComponent.css";
 
-// Importar el logo SVG
-import Logo from "../assets/favicon.svg";
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "https://kinapp-api.vercel.app/";
+const SUPPORT_EMAIL =
+  process.env.REACT_APP_SUPPORT_EMAIL || "kinecatkinesiologia@gmail.com";
+const WEB_APP_LOGIN_URL =
+  process.env.REACT_APP_WEB_APP_URL ||
+  "https://gestion-baskin.vercel.app/login";
+const WEB_APP_FORGOT_URL =
+  process.env.REACT_APP_WEB_APP_FORGOT_URL ||
+  "https://gestion-baskin.vercel.app/forgot-password";
 
-const baseUrl = "https://kinapp-api.vercel.app/";
+const BrandHeader = ({ tagline = "Gestión clínica y seguimiento de pacientes" }) => (
+  <div className="reset-page__brand">
+    <BrandLogo size="lg" />
+    {tagline ? <p className="reset-page__tagline">{tagline}</p> : null}
+  </div>
+);
+
+const PageShell = ({ children }) => (
+  <div className="reset-page">
+    <div className="reset-page__container">{children}</div>
+  </div>
+);
 
 const FormComponent = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const [success, setSuccess] = useState(false);
   const [invalidUser, setInvalidUser] = useState("");
@@ -25,27 +44,29 @@ const FormComponent = () => {
   const verifyToken = async () => {
     try {
       const { data } = await axios.get(
-        `${baseUrl}verify-token?token=${token}&id=${id}`
+        `${API_BASE_URL}verify-token?token=${token}&id=${id}`,
       );
       if (!data.success) setInvalidUser(data.error);
       setBusy(false);
-    } catch (error) {
-      if (error?.response?.data) {
-        const { data } = error.response;
+    } catch (verifyError) {
+      if (verifyError?.response?.data) {
+        const { data } = verifyError.response;
         if (!data.success) setInvalidUser(data.error);
       }
-      console.log(error);
+      setBusy(false);
+      console.log(verifyError);
     }
   };
 
   useEffect(() => {
     verifyToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- validación única al montar con token/id de la URL
   }, []);
 
   const handleChange = ({ target }) => {
     const { name, value } = target;
     setNewPassword({ ...newPassword, [name]: value });
-    setError(""); // Limpiar errores al escribir
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -57,122 +78,122 @@ const FormComponent = () => {
     }
 
     if (password !== confirmPassword) {
-      return setError("¡Las contraseñas no coinciden!");
+      return setError("Las contraseñas no coinciden");
     }
 
     try {
       setBusy(true);
       const { data } = await axios.post(
-        `${baseUrl}reset-password?token=${token}&id=${id}`,
-        { password, id }
+        `${API_BASE_URL}reset-password?token=${token}&id=${id}`,
+        { password, id },
       );
 
       setBusy(false);
       if (data.success) {
         setSuccess(true);
-        // Redirigir automáticamente después de 3 segundos
         setTimeout(() => {
-          navigate("/login");
+          window.location.href = WEB_APP_LOGIN_URL;
         }, 3000);
       }
-    } catch (error) {
+    } catch (submitError) {
       setBusy(false);
-      if (error?.response?.data) {
-        const { data } = error.response;
-        if (!data.success) setError(data.error);
+      if (submitError?.response?.data) {
+        const { data } = submitError.response;
+        if (!data.success) setError(data.error || data.message);
       }
-      console.log(error);
+      console.log(submitError);
     }
   };
 
-  if (success)
+  if (success) {
     return (
-      <div className="success-message">
-        <div className="logo-container">
-          <img src={Logo} alt="Baskin Logo" className="logo" />
-          <h1 className="form-title">Baskin</h1>
+      <PageShell>
+        <BrandHeader tagline="" />
+        <div className="reset-card reset-card--status">
+          <div className="status-icon status-icon--success">✓</div>
+          <h1 className="reset-card__title">Contraseña restablecida</h1>
+          <p className="reset-card__description">
+            Tu contraseña fue actualizada correctamente. Serás redirigido al
+            inicio de sesión en unos segundos.
+          </p>
+          <button
+            type="button"
+            className="form-button form-button--primary"
+            onClick={() => {
+              window.location.href = WEB_APP_LOGIN_URL;
+            }}
+          >
+            Ir al inicio de sesión
+          </button>
         </div>
-        <div className="success-icon">✓</div>
-        <h2>¡Contraseña restablecida con éxito!</h2>
-        <p>Tu contraseña ha sido actualizada correctamente.</p>
-        <p className="redirect-message">
-          Serás redirigido a la página de inicio de sesión en 3 segundos...
-        </p>
-        <button
-          className="form-button secondary"
-          onClick={() => navigate("/login")}
-        >
-          Ir al inicio de sesión ahora
-        </button>
-      </div>
+      </PageShell>
     );
+  }
 
-  if (invalidUser)
+  if (invalidUser) {
     return (
-      <div className="invalid-message">
-        <div className="logo-container">
-          <img src={Logo} alt="Baskin Logo" className="logo" />
-          <h1 className="form-title">Baskin</h1>
+      <PageShell>
+        <BrandHeader tagline="" />
+        <div className="reset-card reset-card--status">
+          <div className="status-icon status-icon--error">!</div>
+          <h1 className="reset-card__title">Enlace no válido</h1>
+          <p className="reset-card__description">
+            {invalidUser ||
+              "El enlace de restablecimiento no es válido o expiró."}
+          </p>
+          <button
+            type="button"
+            className="form-button form-button--secondary"
+            onClick={() => {
+              window.location.href = WEB_APP_FORGOT_URL;
+            }}
+          >
+            Solicitar nuevo enlace
+          </button>
         </div>
-        <div className="error-icon">✗</div>
-        <h2>{invalidUser}</h2>
-        <p>El enlace de restablecimiento no es válido o ha expirado.</p>
-        <button
-          className="form-button secondary"
-          onClick={() => navigate("/forgot-password")}
-        >
-          Solicitar nuevo enlace
-        </button>
-      </div>
+      </PageShell>
     );
+  }
 
-  if (busy)
+  if (busy) {
     return (
-      <div className="loading-message">
-        <div className="logo-container">
-          <img src={Logo} alt="Baskin Logo" className="logo" />
-          <h1 className="form-title">Baskin</h1>
+      <PageShell>
+        <BrandHeader />
+        <div className="reset-card reset-card--status">
+          <div className="spinner" aria-hidden="true" />
+          <h1 className="reset-card__title">Verificando enlace</h1>
+          <p className="reset-card__description">
+            Estamos validando tu enlace de restablecimiento…
+          </p>
         </div>
-        <div className="spinner"></div>
-        <h2 className="loading-text">
-          Verificando enlace de restablecimiento...
-        </h2>
-        <p className="loading-subtext">Por favor, espera un momento.</p>
-      </div>
+      </PageShell>
     );
+  }
 
   return (
-    <div className="form-component">
-      <div className="form-header">
-        <div className="logo-container">
-          <img src={Logo} alt="Baskin Logo" className="logo" />
-          <h1 className="form-title">Baskin</h1>
-        </div>
-        <p className="form-subtitle">Análisis Biomecánico Inteligente</p>
-      </div>
-
-      <div className="form-card">
-        <h2 className="form-heading">Restablecer Contraseña</h2>
-        <p className="form-description">
-          Crea una nueva contraseña segura para tu cuenta
+    <PageShell>
+      <BrandHeader />
+      <div className="reset-card">
+        <h1 className="reset-card__title">Restablecer contraseña</h1>
+        <p className="reset-card__description">
+          Elegí una contraseña segura para tu cuenta de Kinecat
         </p>
 
-        {error && (
-          <div className="form-error" role="alert">
-            <span className="error-icon-small">!</span>
+        {error ? (
+          <div className="form-alert form-alert--error" role="alert">
             {error}
           </div>
-        )}
+        ) : null}
 
-        <form onSubmit={handleSubmit} className="password-form">
+        <form onSubmit={handleSubmit} className="reset-form">
           <div className="input-group">
             <label htmlFor="password" className="input-label">
-              Nueva Contraseña
+              Nueva contraseña
             </label>
             <input
               id="password"
               className="form-input"
-              placeholder="Ingresa tu nueva contraseña"
+              placeholder="Ingresá tu nueva contraseña"
               type="password"
               name="password"
               value={newPassword.password}
@@ -184,12 +205,12 @@ const FormComponent = () => {
 
           <div className="input-group">
             <label htmlFor="confirmPassword" className="input-label">
-              Confirmar Contraseña
+              Confirmar contraseña
             </label>
             <input
               id="confirmPassword"
               className="form-input"
-              placeholder="Confirma tu nueva contraseña"
+              placeholder="Repetí tu nueva contraseña"
               type="password"
               name="confirmPassword"
               value={newPassword.confirmPassword}
@@ -198,24 +219,27 @@ const FormComponent = () => {
             />
           </div>
 
-          <button type="submit" className="form-button primary">
-            Restablecer Contraseña
+          <button type="submit" className="form-button form-button--primary">
+            Guardar contraseña
           </button>
         </form>
 
-        <div className="form-footer">
+        <div className="reset-footer">
           <p>
             ¿Recordaste tu contraseña?{" "}
-            <button className="text-link" onClick={() => navigate("/login")}>
+            <button
+              type="button"
+              className="text-link"
+              onClick={() => {
+                window.location.href = WEB_APP_LOGIN_URL;
+              }}
+            >
               Iniciar sesión
             </button>
           </p>
-          <p className="security-note">
-            🔒 Tus datos están protegidos con encriptación de nivel empresarial
-          </p>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
 

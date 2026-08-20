@@ -1,0 +1,37 @@
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.brand-logo--lg {
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.brand-logo__wordmark {
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.04em;
+}
+
+.brand-logo--sm .brand-logo__wordmark {
+  font-size: var(--font-size-lg);
+}
+
+.brand-logo--md .brand-logo__wordmark {
+  font-size: var(--font-size-xl);
+}
+
+.brand-logo--lg .brand-logo__wordmark {
+  font-size: clamp(2rem, 5vw, var(--font-size-4xl));
+}
+
+.brand-logo__kine {
+  color: var(--color-gray-900);
+}
+
+.brand-logo__cat {
+  color: var(--color-brand-mark-dark);
+}
