@@ -150,6 +150,15 @@ const FormComponent = () => {
           >
             Solicitar nuevo enlace
           </button>
+          <p className="reset-card__description">
+            ¿Necesitás ayuda?{" "}
+            <a
+              className="text-link"
+              href={`mailto:${SUPPORT_EMAIL}?subject=Solicitud%20reset%20Kinecat`}
+            >
+              Contactar soporte
+            </a>
+          </p>
         </div>
       </PageShell>
     );
