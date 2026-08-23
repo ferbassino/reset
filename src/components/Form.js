@@ -19,12 +19,13 @@ const WEB_APP_FORGOT_URL =
 const BrandHeader = ({ tagline = "Gestión clínica y seguimiento de pacientes" }) => (
   <div className="reset-page__brand">
     <BrandLogo size="lg" />
+    <span className="reset-page__badge">Profesional</span>
     {tagline ? <p className="reset-page__tagline">{tagline}</p> : null}
   </div>
 );
 
 const PageShell = ({ children }) => (
-  <div className="reset-page">
+  <div className="reset-page reset-page--professional">
     <div className="reset-page__container">{children}</div>
   </div>
 );
